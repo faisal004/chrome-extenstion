@@ -2,12 +2,17 @@
   const POPUP_ID = "website-highlight-saver-popup";
   let selectedText = "";
   let selectionRect = null;
+  let isSaving = false;
 
   function removeSavePopup() {
     const existingPopup = document.getElementById(POPUP_ID);
     if (existingPopup) {
       existingPopup.remove();
     }
+  }
+
+  function isSavePopupTarget(target) {
+    return target instanceof Element && Boolean(target.closest(`#${POPUP_ID}`));
   }
 
   function getSelectionDetails() {
@@ -33,13 +38,14 @@
     return { text, rect };
   }
 
-  function showSavePopup(rect) {
+  function showSavePopup(text, rect) {
     removeSavePopup();
 
     const popup = document.createElement("button");
     popup.id = POPUP_ID;
     popup.type = "button";
     popup.textContent = "Save Highlight?";
+    popup.dataset.highlightText = text;
     popup.setAttribute("aria-label", "Save selected text as a highlight");
 
     const top = Math.max(8, rect.top + window.scrollY - 42);
@@ -63,32 +69,49 @@
       boxShadow: "0 8px 24px rgba(15, 23, 42, 0.22)",
     });
 
-    popup.addEventListener("mousedown", (event) => {
+    popup.addEventListener("pointerdown", async (event) => {
       event.preventDefault();
       event.stopPropagation();
+
+      if (isSaving) {
+        return;
+      }
+
+      try {
+        isSaving = true;
+        popup.textContent = "Saving...";
+        await saveHighlight(popup.dataset.highlightText || selectedText);
+        popup.textContent = "Saved";
+        setTimeout(removeSavePopup, 900);
+      } catch (error) {
+        popup.textContent = "Could not save";
+        setTimeout(removeSavePopup, 1400);
+      } finally {
+        isSaving = false;
+      }
     });
 
-    popup.addEventListener("click", async (event) => {
+    popup.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
-      await saveHighlight();
-      popup.textContent = "Saved";
-      setTimeout(removeSavePopup, 900);
     });
 
     document.documentElement.appendChild(popup);
   }
 
-  async function saveHighlight() {
-    if (!selectedText) {
-      return;
+  async function saveHighlight(textToSave) {
+    const text = String(textToSave || "").trim();
+
+    if (!text) {
+      throw new Error("No selected text to save.");
     }
 
     const highlight = {
       id: createHighlightId(),
-      text: selectedText,
+      text,
       url: window.location.href,
       title: document.title || window.location.hostname,
+      category: "Uncategorized",
       createdAt: new Date().toISOString(),
     };
 
@@ -116,10 +139,26 @@
 
     selectedText = details.text;
     selectionRect = details.rect;
-    showSavePopup(selectionRect);
+    showSavePopup(selectedText, selectionRect);
   }
 
-  document.addEventListener("mouseup", () => {
+  document.addEventListener(
+    "mouseup",
+    (event) => {
+      if (isSavePopupTarget(event.target)) {
+        return;
+      }
+
+      setTimeout(handleSelectionChange, 0);
+    },
+    true
+  );
+
+  document.addEventListener("pointerup", (event) => {
+    if (isSavePopupTarget(event.target)) {
+      return;
+    }
+
     setTimeout(handleSelectionChange, 0);
   });
 
@@ -130,9 +169,7 @@
   });
 
   document.addEventListener("mousedown", (event) => {
-    const target = event.target;
-
-    if (target instanceof Element && target.id === POPUP_ID) {
+    if (isSavePopupTarget(event.target)) {
       return;
     }
 
