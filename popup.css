@@ -1,0 +1,168 @@
+:root {
+  color-scheme: light;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 380px;
+  min-height: 520px;
+  margin: 0;
+  background: #f8fafc;
+  color: #111827;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 8px 12px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 520px;
+  padding: 16px;
+}
+
+.header,
+.summary-header,
+.highlight-footer,
+.api-key-row {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.header h1 {
+  font-size: 20px;
+  line-height: 1.2;
+  margin: 0 0 3px;
+}
+
+.header p,
+.status {
+  color: #64748b;
+  font-size: 12px;
+  margin: 0;
+}
+
+.ghost-button {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.summary-panel,
+.highlight-card,
+.empty-state {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.summary-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+
+.summary-panel h2 {
+  font-size: 14px;
+  margin: 0;
+}
+
+.api-key-label {
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.api-key-row input {
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+}
+
+.summary-output {
+  color: #1f2937;
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 0;
+  max-height: 90px;
+  overflow: auto;
+  white-space: pre-wrap;
+}
+
+.highlight-list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.highlight-card {
+  padding: 12px;
+}
+
+.highlight-text {
+  font-size: 14px;
+  line-height: 1.45;
+  margin: 0 0 10px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.highlight-source {
+  color: #2563eb;
+  display: block;
+  font-size: 12px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.highlight-date {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.delete-button {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 6px 9px;
+}
+
+.empty-state {
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.45;
+  padding: 24px 18px;
+  text-align: center;
+}

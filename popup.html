@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Saved Highlights</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="header">
+        <div>
+          <h1>Saved Highlights</h1>
+          <p id="highlightCount">No highlights yet</p>
+        </div>
+        <button id="clearAllButton" class="ghost-button" type="button">Clear</button>
+      </header>
+
+      <section class="summary-panel" aria-labelledby="summaryTitle">
+        <div class="summary-header">
+          <h2 id="summaryTitle">AI Summary</h2>
+          <button id="summarizeButton" type="button">Summarize</button>
+        </div>
+        <label class="api-key-label" for="apiKeyInput">Gemini API key</label>
+        <div class="api-key-row">
+          <input id="apiKeyInput" type="password" placeholder="Paste key for summaries" autocomplete="off" />
+          <button id="saveApiKeyButton" class="ghost-button" type="button">Save</button>
+        </div>
+        <p id="summaryStatus" class="status" role="status"></p>
+        <p id="summaryOutput" class="summary-output"></p>
+      </section>
+
+      <section id="highlightList" class="highlight-list" aria-live="polite"></section>
+      <template id="highlightTemplate">
+        <article class="highlight-card">
+          <p class="highlight-text"></p>
+          <a class="highlight-source" target="_blank" rel="noreferrer"></a>
+          <div class="highlight-footer">
+            <time class="highlight-date"></time>
+            <button class="delete-button" type="button">Delete</button>
+          </div>
+        </article>
+      </template>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>
