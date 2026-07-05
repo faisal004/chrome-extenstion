@@ -71,7 +71,7 @@ function renderHighlights() {
 
     deleteButton.addEventListener("click", async () => {
       await setHighlights(highlights.filter((itemHighlight) => itemHighlight.id !== highlight.id));
-      summaryOutput.textContent = "";
+      clearSummaryOutput();
       summaryStatus.textContent = "Highlight deleted.";
     });
 
@@ -99,11 +99,124 @@ function buildSummaryPrompt() {
     .map((highlight, index) => `${index + 1}. ${highlight.text}`)
     .join("\n\n");
 
-  return `Summarize these saved webpage highlights in 4 concise bullet points or fewer:\n\n${text}`;
+  return `Summarize these saved webpage highlights as MDX-compatible Markdown. Use a short heading and 4 concise bullet points or fewer. Do not include JSX components or HTML tags.\n\n${text}`;
+}
+
+function clearSummaryOutput() {
+  summaryOutput.textContent = "";
+}
+
+function renderMdxSummary(markdown) {
+  clearSummaryOutput();
+
+  if (!markdown) {
+    summaryOutput.textContent = "Gemini returned an empty summary.";
+    return;
+  }
+
+  const lines = markdown.split(/\r?\n/);
+  let list = null;
+  let codeBlock = null;
+
+  for (const rawLine of lines) {
+    const line = rawLine.trimEnd();
+    const codeFenceMatch = line.match(/^```/);
+
+    if (codeFenceMatch) {
+      if (codeBlock) {
+        summaryOutput.appendChild(codeBlock);
+        codeBlock = null;
+      } else {
+        codeBlock = document.createElement("pre");
+      }
+      list = null;
+      continue;
+    }
+
+    if (codeBlock) {
+      codeBlock.textContent += `${line}\n`;
+      continue;
+    }
+
+    if (!line.trim()) {
+      list = null;
+      continue;
+    }
+
+    const headingMatch = line.match(/^(#{1,3})\s+(.+)$/);
+    if (headingMatch) {
+      list = null;
+      const heading = document.createElement(`h${headingMatch[1].length + 2}`);
+      heading.appendChild(renderInlineMdx(headingMatch[2]));
+      summaryOutput.appendChild(heading);
+      continue;
+    }
+
+    const listMatch = line.match(/^[-*]\s+(.+)$/);
+    if (listMatch) {
+      if (!list) {
+        list = document.createElement("ul");
+        summaryOutput.appendChild(list);
+      }
+
+      const item = document.createElement("li");
+      item.appendChild(renderInlineMdx(listMatch[1]));
+      list.appendChild(item);
+      continue;
+    }
+
+    list = null;
+    const paragraph = document.createElement("p");
+    paragraph.appendChild(renderInlineMdx(line));
+    summaryOutput.appendChild(paragraph);
+  }
+
+  if (codeBlock) {
+    summaryOutput.appendChild(codeBlock);
+  }
+}
+
+function renderInlineMdx(text) {
+  const fragment = document.createDocumentFragment();
+  const tokenPattern = /(\[([^\]]+)\]\((https?:\/\/[^)\s]+|mailto:[^)\s]+)\)|`([^`]+)`|\*\*([^*]+)\*\*)/g;
+  let lastIndex = 0;
+  let match = tokenPattern.exec(text);
+
+  while (match) {
+    if (match.index > lastIndex) {
+      fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+    }
+
+    if (match[2] && match[3]) {
+      const link = document.createElement("a");
+      link.href = match[3];
+      link.textContent = match[2];
+      link.target = "_blank";
+      link.rel = "noreferrer";
+      fragment.appendChild(link);
+    } else if (match[4]) {
+      const code = document.createElement("code");
+      code.textContent = match[4];
+      fragment.appendChild(code);
+    } else if (match[5]) {
+      const strong = document.createElement("strong");
+      strong.textContent = match[5];
+      fragment.appendChild(strong);
+    }
+
+    lastIndex = tokenPattern.lastIndex;
+    match = tokenPattern.exec(text);
+  }
+
+  if (lastIndex < text.length) {
+    fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+  }
+
+  return fragment;
 }
 
 async function summarizeHighlights() {
-  summaryOutput.textContent = "";
+  clearSummaryOutput();
 
   if (highlights.length === 0) {
     summaryStatus.textContent = "Save at least one highlight first.";
@@ -123,7 +236,7 @@ async function summarizeHighlights() {
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(geminiApiKey)}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${encodeURIComponent(geminiApiKey)}`,
       {
         method: "POST",
         headers: {
@@ -146,7 +259,7 @@ async function summarizeHighlights() {
     const data = await response.json();
     const summary = data.candidates?.[0]?.content?.parts?.map((part) => part.text).join("").trim();
 
-    summaryOutput.textContent = summary || "Gemini returned an empty summary.";
+    renderMdxSummary(summary);
     summaryStatus.textContent = "Summary ready.";
   } catch (error) {
     summaryStatus.textContent = error instanceof Error ? error.message : "Could not summarize highlights.";
@@ -157,7 +270,7 @@ async function summarizeHighlights() {
 
 clearAllButton.addEventListener("click", async () => {
   await setHighlights([]);
-  summaryOutput.textContent = "";
+  clearSummaryOutput();
   summaryStatus.textContent = "All highlights cleared.";
 });
 

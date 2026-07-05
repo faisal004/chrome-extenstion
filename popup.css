@@ -113,6 +113,55 @@ button:disabled {
   margin: 0;
   max-height: 90px;
   overflow: auto;
+}
+
+.summary-output:empty {
+  display: none;
+}
+
+.summary-output h3,
+.summary-output h4,
+.summary-output h5,
+.summary-output p,
+.summary-output ul,
+.summary-output pre {
+  margin: 0 0 8px;
+}
+
+.summary-output h3,
+.summary-output h4,
+.summary-output h5 {
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.summary-output ul {
+  padding-left: 18px;
+}
+
+.summary-output li {
+  margin-bottom: 5px;
+}
+
+.summary-output a {
+  color: #2563eb;
+}
+
+.summary-output code,
+.summary-output pre {
+  background: #f1f5f9;
+  border-radius: 6px;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 12px;
+}
+
+.summary-output code {
+  padding: 1px 4px;
+}
+
+.summary-output pre {
+  overflow-x: auto;
+  padding: 8px;
   white-space: pre-wrap;
 }
 
