@@ -16,27 +16,53 @@
         <button id="clearAllButton" class="ghost-button" type="button">Clear</button>
       </header>
 
-      <section class="summary-panel" aria-labelledby="summaryTitle">
-        <div class="summary-header">
-          <h2 id="summaryTitle">AI Summary</h2>
-          <button id="summarizeButton" type="button">Summarize</button>
-        </div>
-        <label class="api-key-label" for="apiKeyInput">Gemini API key</label>
-        <div class="api-key-row">
-          <input id="apiKeyInput" type="password" placeholder="Paste key for summaries" autocomplete="off" />
-          <button id="saveApiKeyButton" class="ghost-button" type="button">Save</button>
-        </div>
-        <p id="summaryStatus" class="status" role="status"></p>
-        <p id="summaryOutput" class="summary-output"></p>
+      <nav class="tabs" aria-label="Popup sections">
+        <button id="highlightsTabButton" class="tab-button active" type="button" data-tab="highlights" aria-selected="true">
+          Highlights
+        </button>
+        <button id="summaryTabButton" class="tab-button" type="button" data-tab="summary" aria-selected="false">
+          Summary
+        </button>
+      </nav>
+
+      <section id="highlightsPanel" class="panel active-panel" aria-labelledby="highlightsTabButton">
+        <div id="categoryChips" class="category-chips" aria-label="Filter highlights by category"></div>
+        <section id="highlightList" class="highlight-list" aria-live="polite"></section>
       </section>
 
-      <section id="highlightList" class="highlight-list" aria-live="polite"></section>
+      <section id="summaryPanel" class="panel" aria-labelledby="summaryTabButton" hidden>
+        <div class="summary-card">
+          <div class="summary-header">
+            <div>
+              <h2 id="summaryTitle">AI Summary</h2>
+              <p id="summaryCount" class="status">Choose a category</p>
+            </div>
+            <button id="summarizeButton" type="button">Summarize</button>
+          </div>
+
+          <label class="field-label" for="summaryCategorySelect">Summarize</label>
+          <select id="summaryCategorySelect" class="select-control"></select>
+
+          <div id="summaryPreview" class="summary-preview"></div>
+
+          <label class="field-label" for="apiKeyInput">Gemini API key</label>
+          <div class="api-key-row">
+            <input id="apiKeyInput" type="password" placeholder="Paste key for summaries" autocomplete="off" />
+            <button id="saveApiKeyButton" class="ghost-button" type="button">Save</button>
+          </div>
+
+          <p id="summaryStatus" class="status" role="status"></p>
+          <div id="summaryOutput" class="summary-output"></div>
+        </div>
+      </section>
+
       <template id="highlightTemplate">
         <article class="highlight-card">
           <p class="highlight-text"></p>
           <a class="highlight-source" target="_blank" rel="noreferrer"></a>
           <div class="highlight-footer">
             <time class="highlight-date"></time>
+            <select class="highlight-category select-control" aria-label="Highlight category"></select>
             <button class="delete-button" type="button">Delete</button>
           </div>
         </article>
